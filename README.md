@@ -1,61 +1,191 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Documentation PKL
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Install Projek Laravel
 
-## About Laravel
+```php
+composer create-project laravel/laravel myprojecr –prefer-dist
+//--prefer-dist akan meinstall depencies yang dibutuhkan
+```
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### Create migration
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+```php
+php artisan make:model Siswa -m
+```
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Table Siswas 
 
-## Learning Laravel
+```php
+Schema::create('siswas', function (Blueprint $table) {
+	$table->id();
+	$table->foreignId('user_id')->constrained()->onDelete('cascade');
+	$table->string('nama');
+	$table->string('nis')->unique();
+	$table->enum('gender',['L','P']);
+	$table->string('alamat');
+	$table->string('kontak');
+	$table->enum('status_pkl',['1','0'])->nullable();
+	$table->timestamps();
+});
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Table Gurus
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+```php
+Schema::create('gurus', function (Blueprint $table) {
+	$table->id();
+	$table->foreignId('user_id')->constrained()->onDelete('cascade');
+	$table->string('nama');
+	$table->string('nip')->unique();
+	$table->enum('gender',['L','P']);
+	$table->string('alamat');
+	$table->string('kontak');
+	$table->timestamps();
+});
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Table Industris
 
-## Laravel Sponsors
+```php
+Schema::create('industris', function (Blueprint $table) {
+	$table->id();
+	$table->string('nama');
+	$table->string('bidang_usaha');
+	$table->string('alamat');
+	$table->string('kontak');
+	$table->string('email')->nullable();
+	$table->string('guru_pembimbing')->nullable();
+	$table->timestamps();
+});
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Table Pkls
 
-### Premium Partners
+```php
+Schema::create('pkls', function (Blueprint $table) {
+	$table->id();
+	$table->foreignId('siswa_id')->constrained('siswas')->onDelete('restrict');
+	$table->foreignId('guru_id')->constrained('gurus');
+	$table->foreignId('industri_id')->constrained('industris')->onDelete('restrict');
+	$table->datetime('tanggal_mulai');
+	$table->datetime('tanggal_selesai');
+	$table->timestamps();
+});
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## install breeze untuk auth
 
-## Contributing
+```php
+composer require laravel/breeze
+php artisan breeze:install
+pilih livewire volt
+npm install
+php artisan migrate
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Install Filament
 
-## Code of Conduct
+```php
+composer require filament/filament -W
+// -W for depencies
+php artisan filament:install --panels
+// Install panel admin
+php artisan make:filament-user
+//create user filament
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Create Resource
 
-## Security Vulnerabilities
+```php
+php artisan make:filament-resource User
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+User adalah model user
 
-## License
+buat untuk model yang lain
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Install Filament shield
+
+for role and permission
+
+```php
+composer require bezhansalleh/filament-shield
+```
+
+### publish the config
+
+```php
+php artisan vendor:publish --tag="filament-shield-config”
+//tambahkan HasRoles ke user model
+php artisan shield:setup
+//install plugin ke panel
+php artisan shield:install admin
+//admin adalah id panel
+php artisan shield:generate –all
+//for generate permission and role
+//beri permission untuk setiap role
+```
+
+## Create Middleware for role
+
+```php
+php artisan make:middleware RoleMiddleware
+```
+
+isi
+
+public function handle(Request $request, Closure $next, string ...$roles): Response
+
+{
+
+if(!Auth::check()){
+
+return redirect()->route('login');
+
+}
+
+$user = Auth::user();
+
+if(!$user->hasAnyRole(...$roles)){
+
+return redirect()->back()->with('error', 'You do not have permission to access this page.');
+
+}
+
+return $next($request);
+
+}
+
+—
+
+…$roles berarti parameter yang bisa lebih dari satu atau variadic parameter
+
+if(!$user->hasAnyRole(...$roles)){
+
+berarti user yang tidak memiliki role yang ditentukan akan di redirect ke halaman sebelumnya dengna redirect()->back()
+
+daftarkan di bootstrap/app.php dengna alias
+
+- >withMiddleware(function (Middleware $middleware) {
+
+//
+
+$middleware->alias([
+
+'role' => RoleMiddleware::class,
+
+]);
+
+penggunakan pada web.php
+
+->middleware(['auth', 'verified','role:siswa,guru'])
+
+pada adminpanel
+
+- >authMiddleware([
+
+Authenticate::class,
+
+'role:super_admin',
+
+]);
